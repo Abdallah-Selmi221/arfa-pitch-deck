@@ -4,6 +4,10 @@ node_modules
 # Build output
 dist
 
+# Large media files
+*.mp4
+public/*.mp4
+
 # Environment variables
 .env
 .env.local
@@ -18,4 +22,3 @@ dist
 *.njsproj
 *.sln
 *.sw?
-
