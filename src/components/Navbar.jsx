@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import Logo from './Logo';
-import { MonitorPlay, Key } from 'lucide-react';
+import { MonitorPlay, Key, Maximize, Minimize } from 'lucide-react';
 
 export default function Navbar({ activeSection, scrollToSection, isAutoPlay, setIsAutoPlay, openQAModal }) {
   const [scrolled, setScrolled] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -17,6 +18,28 @@ export default function Navbar({ activeSection, scrollToSection, isAutoPlay, set
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Listen to Fullscreen API changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((err) => {
+        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  };
 
   const navItems = [
     { id: 'hero', label: 'الافتتاحية', presenter: 'العرض' },
@@ -76,6 +99,29 @@ export default function Navbar({ activeSection, scrollToSection, isAutoPlay, set
           {/* Action Buttons */}
           <div className="flex items-center gap-2 sm:gap-3">
             
+            {/* Fullscreen Toggle Button (Presentation Mode) */}
+            <button
+              onClick={toggleFullscreen}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold transition-all shadow-md ${
+                isFullscreen
+                  ? 'bg-teal-500/30 text-teal-200 border border-teal-400 shadow-[0_0_20px_rgba(45,212,191,0.4)]'
+                  : 'bg-[#112240] text-teal-300 border border-teal-400/40 hover:bg-teal-500/20 hover:text-white'
+              }`}
+              title={isFullscreen ? "إلغاء وضع ملء الشاشة (Esc)" : "وضع التقديم الكامل (Fullscreen)"}
+            >
+              {isFullscreen ? (
+                <>
+                  <Minimize className="w-4 h-4 text-teal-300" />
+                  <span className="hidden xl:inline">إنهاء ملء الشاشة</span>
+                </>
+              ) : (
+                <>
+                  <Maximize className="w-4 h-4 text-teal-400" />
+                  <span className="hidden xl:inline">ملء الشاشة</span>
+                </>
+              )}
+            </button>
+
             {/* Secret Q&A Modal Trigger Button */}
             <button
               onClick={openQAModal}
